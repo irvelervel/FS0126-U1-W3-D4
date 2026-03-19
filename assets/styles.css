@@ -155,7 +155,7 @@ form button {
 }
 
 #appointments {
-  display: none;
+  display: none; /* bello potente! */
 }
 
 #appointmentsList {

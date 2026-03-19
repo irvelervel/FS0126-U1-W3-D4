@@ -132,6 +132,16 @@ const createCalendarCells = function () {
       spanWithDay.innerText = i + 1 // lo sostituisco con l'etichetta della cella
       //   evidenzio ora lo span
       spanWithDay.classList.add('hasDay') // quando il titolo provvisorio viene sostituito dal numero, lo ingrandisco
+      //   invoco la funzione fillAppointmentsList in modo da riempire la lista sottostante con gli appuntamenti della giornata
+      // ora MOSTRO la sezione degli appuntamenti se la giornata contiene eventi,
+      // altrimenti la NASCONDO
+      if (appointments[i].length > 0) {
+        // mostro gli appuntamenti
+        fillAppointmentsList()
+        showAppointments()
+      } else {
+        hideAppointments()
+      }
     })
 
     // appendo la dayCell alla section del calendario (vuota)
@@ -182,6 +192,62 @@ form.addEventListener('submit', function (e) {
   meetingDayAsNumber-- // sottraggo 1
   // ora meetingDayAsNumber è l'indice corretto per l'array di array
   appointments[meetingDayAsNumber].push(appointment)
-  //   console.log di verifica
+  // console.log di verifica
   console.log('APPOINTMENTS DOPO AGGIUNTA EVENTO', appointments)
+  // ora coloriamo la cella nel calendario in cui abbiamo aggiunto un appuntamento
+  // su quale cella vado ad aggiungere la classe "dot"? su quella che al momento è "selected"
+  //   creiamo uno span vuoto
+  const dot = document.createElement('span') // <span></span>
+  dot.classList.add('dot') // <span class="dot"></span>
+  // inserisco questo span nella cella attualmente selected
+  const selectedCell = document.querySelector('.selected') // andrà a cercare la classe selected
+  // appendo il dot
+  selectedCell.appendChild(dot)
+
+  // già che ci siamo, mostriamo la sezione degli appuntamenti
+  // dobbiamo anche riempire la lista degli appuntamenti con gli eventi del giorno
+  fillAppointmentsList()
+  showAppointments()
+  // svuoto il form perchè ho salvato i dati
+  form.reset()
 })
+
+const fillAppointmentsList = function () {
+  // questa funzioncina si occuperà di RIEMPIRE la <ul> al momento vuota nel footer
+  // quella che dovrebbe mostrarci gli appuntamenti esistenti
+  const list = document.getElementById('appointmentsList')
+  // dobbiamo riempirla con gli appuntamenti della giornata
+  // quale cassettino devo aprire?
+  // prendo dal calendario la cella "selected", tolgo 1 al numero e apro il cassettino corrispondente
+  const selectedCell = document.querySelector('.day.selected h3') // h3 della cella con classe "selected"
+  // recupero il valore e tolgo 1, così ottengo il cassettino corretto
+  const indiceCassettino = parseInt(selectedCell.innerText) - 1 // il valore dell'h3, es. "31", trasformato in numero e sottratto 1
+  // apro il cassettino nell'armadio
+  const arrayOfAppointments = appointments[indiceCassettino] // array di appuntamenti per la giornata selezionata
+  console.log('APPUNTAMENTI PER IL GIORNO CLICCATO', arrayOfAppointments)
+  //   funziona! ora riempiamo la list con un <li> per ogni evento
+  //   ...però prima svuotiamo la lista
+  list.innerHTML = ''
+  for (let i = 0; i < arrayOfAppointments.length; i++) {
+    // per ogni appuntamento della giornata...
+    // ...creo un <li>
+    const newLi = document.createElement('li')
+    newLi.innerText = arrayOfAppointments[i]
+    list.appendChild(newLi)
+  }
+}
+
+// creiamo una piccola funzione che MOSTRA la sezione degli appuntamento del giorno (che di default
+// avrebbe display: none)
+const showAppointments = function () {
+  // devo recuperare dal DOM il div con id "appointments"
+  const appointmentsDiv = document.getElementById('appointments')
+  appointmentsDiv.style.display = 'block'
+}
+
+const hideAppointments = function () {
+  // questa funzione ri-nasconde la sezione degli appointments se la giornata cliccata NON ha niente
+  // da fare vedere (la sua lista di appuntamenti è vuota)
+  const appointmentsDiv = document.getElementById('appointments')
+  appointmentsDiv.style.display = 'none'
+}
