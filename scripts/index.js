@@ -113,6 +113,25 @@ const createCalendarCells = function () {
     // ho bisogno del metodo b), quello via JS!
     dayCell.addEventListener('click', function () {
       console.log('CELLA CLICCATA!', i + 1)
+
+      //   però PRIMA di evidenziare la cella cliccata, mi occupo di DESELEZIONARE celle
+      // potenzialemnte già "selected" -> TOLGO TUTTE LE CLASSI SELECTED GIÀ APPLICATE
+      const previousSelected = document.querySelector('.day.selected') // questa, se esiste, è la cella dove PRIMA avevo cliccato!
+      console.log('CELLA PRECEDENTEMENTE SELEZIONATA', previousSelected)
+      if (previousSelected !== null) {
+        // se c'era già una cella selezionata... la deseleziono!
+        previousSelected.classList.remove('selected') // le tolgo il bordo viola
+      }
+      // voglio EVIDENZIARE la cella cliccata
+      dayCell.classList.add('selected')
+
+      // voglio portare il suo numero nella sezione del form in basso a sx
+      //   prendiamo un riferimento a quella sezione del form in basso a sx
+      const spanWithDay = document.getElementById('newMeetingDay') // all'inizio ha il titolo provvisorio "click on a day"
+      // sovrascrivo il titolo provvisorio
+      spanWithDay.innerText = i + 1 // lo sostituisco con l'etichetta della cella
+      //   evidenzio ora lo span
+      spanWithDay.classList.add('hasDay') // quando il titolo provvisorio viene sostituito dal numero, lo ingrandisco
     })
 
     // appendo la dayCell alla section del calendario (vuota)
@@ -127,3 +146,42 @@ const createCalendarCells = function () {
 }
 
 createCalendarCells()
+
+// ora gestiamo l'interazione con il FORM: il form predispone uno spazio per selezionare il giorno
+// (che già si riempie correttamente), per selezionare l'ORA e per scrivere un nome per l'appuntamento
+// quello che manca è interagire con il suo evento di submit e inserire la stringa dell'evento
+// nel cassettino giusto dell'armadio
+const form = document.getElementById('meeting-form')
+form.addEventListener('submit', function (e) {
+  e.preventDefault() // fermiamo l'aggiornamento automatico della pagina
+  // decidiamo cosa fare quando il form viene inviato
+  // 1) raccoglierò i dati del form
+  //   prendo prima i riferimenti ai DUE campi input!
+  const newMeetingTimeInput = document.getElementById('newMeetingTime') // input ora
+  const newMeetingNameInput = document.getElementById('newMeetingName') // input nome
+  // grazie a loro, posso recuperare il VALORE degli input -> proprietà .value
+  const newMeetingTime = newMeetingTimeInput.value // es. "12:00"
+  const newMeetingName = newMeetingNameInput.value // es. "Pranzo fuori"
+  // 2) comporrò la stringa relativa all'evento, es. "12:00 - Pranzo"
+  // const appointment = newMeetingTime + " - " + newMeetingName // forma classica
+  const appointment = `${newMeetingTime} - ${newMeetingName}` // forma backticks
+  // 3) pusho la stringa nell'arrayino corrispondente al giorno che ho cliccato
+  console.log("ECCO L'APPUNTAMENTO", appointment)
+  console.log('ora dobbiamo salvarlo nel cassettino giusto...')
+  //   come trovo il cassettino giusto? prima, quando ho cliccato la cella, mi sono trasportato in basso
+  // a sx il numero corrispondente -> era il numero che appariva nella casella che ho cliccato
+  //   recuperiamo intanto questo valore
+  const spanWithDay = document.getElementById('newMeetingDay') // questo è lo SPAN contenente il valore del giorno in basso a sx
+  // ora, da questo span, recupero il suo contenuto testuale con innerText
+  const meetingDay = spanWithDay.innerText // es. '31'
+  // questo è l'indizio più importante per capire in quale cassettino pushare l'evento
+  //   solo che è una stringa, e rappresenta "l'etichetta" del giorno, non la posizione giusta nell'array
+  // la posizione giusta nell'array è VALORE-1
+  let meetingDayAsNumber = parseInt(meetingDay) // da "31" siamo arrivati a 31
+  // ora sottratto 1 per trovare l'indice corretto della cassettiera
+  meetingDayAsNumber-- // sottraggo 1
+  // ora meetingDayAsNumber è l'indice corretto per l'array di array
+  appointments[meetingDayAsNumber].push(appointment)
+  //   console.log di verifica
+  console.log('APPOINTMENTS DOPO AGGIUNTA EVENTO', appointments)
+})
