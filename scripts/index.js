@@ -1,4 +1,19 @@
 // rimbocchiamoci le maniche!
+
+// APPUNTAMENTI
+// un appuntamento sarà una STRINGA -> "12:00 - Commercialista", "20:30 - Cinema", etc.
+// ARRAY DI ARRAY
+// [
+//   [], [], [], [], [], [], []
+//   [], [], [], [], [], [], []
+//   [], [], [], [], [], [], []
+//   [], [], [], [], [], [], []
+//   [], [], []
+// ]
+
+// creo la cassettiera, inizialmente vuota
+const appointments = []
+
 // - per prima cosa cercherei di riempire l'H1 con il nome del mese corrente
 
 // ogni volta che apriamo la pagina il browser dovrà capire la data corrente (dal sistema operativo)
@@ -64,3 +79,51 @@ const numberOfDaysInCurrentMonth = function () {
 
 const numberOfCells = numberOfDaysInCurrentMonth()
 // ora ho il numero delle celle da creare, e tra poco nelle righe successive creerò le celle per il calendario
+console.log(`il mese corrente, marzo, ha ${numberOfCells} giorni`)
+
+// ora che so quanti giorni ha il mese corrente, posso creare le CELLE del calendario!
+// dovrò crearne ${numberOfCells} // 31
+const createCalendarCells = function () {
+  // in questa funzione andremo ad appendere alla sezione vuota del calendario "numberOfCells" celle
+  // prendiamo un riferimento alla section vuota in HTML
+  const emptySectionInHTML = document.getElementById('calendar') // <section></section>
+  // per numberOfCells volte...
+  for (let i = 0; i < numberOfCells; i++) {
+    // qui basta che vada a creare UNA cella, l'operazione verrà ripetuta numberOfCellsVolte (31 x marzo)
+    // creiamo una cella
+    const dayCell = document.createElement('div') // <div></div>
+    // aggiungo al div vuoto appena creato la classe CSS "day", che lo rende inline-block, dimensionato etc.
+    dayCell.classList.add('day') // la classe day è "preconfezionata" nel CSS -> <div class="day"></div>
+    // ora creiamo il contenuto, che avrò il numero del giorno -> dobbiamo creare e inserire un h3
+    const dayCellValue = document.createElement('h3') // <h3></h3>
+    // inserisco dentro questo h3 il giorno corrente
+    dayCellValue.innerText = i + 1 // ?
+    // appendiamo l'h3 al div della cella
+    dayCell.appendChild(dayCellValue) // <div class="day"> <h3>1</h3> </div>
+
+    // CHICCA: prima di appendere dayCell al calendario, controlliamo se questa dayCell è proprio quella
+    // relativa alla giornata di oggi -> SE lo è, le daremo la classe aggiuntiva "color-epic"
+    if (i + 1 === now.getDate()) {
+      dayCell.classList.add('color-epic')
+    }
+
+    // ultima cosa prima di appendere la cella nella section: la rendiamo CLICCABILE
+    // la cella non (ancora) in HTML, non posso sfruttare il metodo a) che Stefano mi aveva detto
+    // per aggiungere un event listener (non posso fare "onclick=miaFunzione()")
+    // ho bisogno del metodo b), quello via JS!
+    dayCell.addEventListener('click', function () {
+      console.log('CELLA CLICCATA!', i + 1)
+    })
+
+    // appendo la dayCell alla section del calendario (vuota)
+    emptySectionInHTML.appendChild(dayCell)
+
+    // inoltre, per OGNI GIORNO del calendario, creo un "cassetto" nella "cassettiera"
+    appointments.push([]) // così ottengo per ogni cella un posticino dove salvarci gli eventi
+  }
+
+  // vediamo com'è la nostra cassettiera per gli eventi
+  console.log('BANCA DATI', appointments)
+}
+
+createCalendarCells()
